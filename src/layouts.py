@@ -11,39 +11,40 @@ from src.constants import (
 )
 import dash_daq as daq
 
-
+# Main function to build the dashboard layout
 def create_layout():
     return (
-        dbc.Container(
+        dbc.Container( # Main Bootstrap container
         id="container",
-        fluid=True,
+        fluid=True, # fluid layout to adapt to viewport width
         children=[
-            dbc.Row(
+            dbc.Row(     # Header row: page title and loading spinner
                 [dbc.Col(
                     html.H1(
-                        "New York Yellow Taxi Trips 2023",
-                        className="text-center my-4",
-                        style={"color": "#371418"},
+                        "New York Yellow Taxi Trips 2023", # page title
+                        className="text-center my-4",      # center text and vertical margin
+                        style={"color": "#371418"},        # title text color 
                     ),
-                    width=11,
+                    width=11, # column width 11/12 in Bootstrap grid
 
                 ),
-                dbc.Col(
+                dbc.Col(   # Loading spinner component to show during callbacks
                     dcc.Loading(
                         id='loading-spinner',
                         overlay_style={"visibility": "visible"},
-                        color=CHART_COLOR,
-                        type="circle",
-                        children=[],
-                        style={"float": "right", "margin-top":"60%"}
+                        color=CHART_COLOR, # spinner color from constants
+                        type="circle",     # spinner style
+                        children=[],       # dcc.Loading can wrap children: here left empty (used for the running prop)
+                        style={"float": "right", "margin-top":"60%"} # spinner positioning
                     ),
-                    width=1
+                    width=1 # Narrow column for the spinner (1/12)
                 )],
-                style={"background-color": YELLOW_COLOR},
+                style={"background-color": YELLOW_COLOR}, # Header row background set to taxi yellow
             ),
+            # Main content area: left column with stacked charts, right column with map + toggle
             html.Div(
                 [
-                    # Left side with stacked graphs
+                    # Left side: two vertically stacked graphs
                     html.Div(
                         [
                             dcc.Graph(
@@ -63,7 +64,7 @@ def create_layout():
                             ], "displaylogo": False},
                             ),  # First graph
                             dcc.Graph(
-                                id="hourly-bar-chart",
+                                id="hourly-bar-chart", # hourly chart id
                                 style={"flex": "1", "height": "auto"},
                                 config={"doubleClickDelay": 500,
                                     "modeBarButtonsToRemove": [
@@ -77,7 +78,7 @@ def create_layout():
                                     "pan",
                                     "autoscale",
                                 ], "displaylogo": False},
-                            ),  # Second graph
+                            ),  # Second graph (hourly)
                         ],
                         style={
                             "display": "flex",
@@ -85,17 +86,17 @@ def create_layout():
                             "width": "50%",  # Take half of the container's width
                         },
                     ),
-                    # Right side with square nyc-choropleth and avg-distance-graph
+                    # Right side: square nyc-choropleth map and histogram-equalization toggle(avg-distance-graph)
                     html.Div(
                         [
-                            # Square nyc-choropleth with button
+                            # Square nyc-choropleth with button 
                             html.Div(
                                 [
                                     html.Div(
                                         dcc.Graph(
                                             id="nyc-choropleth",
                                             config={"doubleClickDelay": 500,
-                                                    "scrollZoom": True,
+                                                    "scrollZoom": True, # allow scroll zoom on the map
                                                     "modeBarButtonsToRemove": [
                                                         "zoom",
                                                         "zoomIn2d",
@@ -108,19 +109,19 @@ def create_layout():
                                             style={
                                                 "height": "100%",
                                                 "width": "90%",
-                                                "position": "absolute",
+                                                "position": "absolute", # uses absolute positioning inside a relative wrapper to create a square aspect ratio
                                             },
                                         ),
                                         style={
                                             "position": "relative",
                                             "width": "100%",
-                                            "padding-bottom": "80%",  # Enforces a square aspect ratio
+                                            "padding-bottom": "80%",  # padding-bottom enforces a square aspect ratio (approx square)
                                             "box-sizing": "border-box",
                                             "overflow": "hidden",
                                             "margin": "0 auto",
                                         },
                                     ),
-                                    # Button row
+                                    # Button row: row with label and boolean switch for histogram equalization
                                     dbc.Row(
                                         [
                                             dbc.Col(
@@ -135,17 +136,17 @@ def create_layout():
                                                 daq.BooleanSwitch(
                                                     id="toggle-heatmap",
                                                     style={"margin-bottom": "0.5em"},
-                                                    on=True,
+                                                    on=True, # default on
                                                     color=CHART_COLOR
                                                 ),
                                                 width="auto",
                                             ),
                                         ],
-                                        className="g-0",
+                                        className="g-0", # remove gutters between the columns
                                     ),
                                 ],
                                 style={
-                                    "background-color": "white",
+                                    "background-color": "white", # background for map+toggle area
                                 },
                             ),
                         ],
@@ -160,11 +161,13 @@ def create_layout():
                 style={
                     "display": "flex",
                     "flex-direction": "row",  # Left and right sides side by side
-                    "height": "80vh",  # Make the container take up the full viewport height
+                    "height": "80vh",  # Make the container take up the full viewport height (80% of the viewport height)
                 },
             ),
+            # Bottom section: two side-by-side charts (daily trips and average distance)
             html.Div(
                 [
+                    # Daily trips line chart
                     dcc.Graph(
                         id="daily-trips-graph",
                         style={"width": "50%"},
@@ -182,8 +185,9 @@ def create_layout():
                             ],
                             "displaylogo": False,
                         },
-                    ),  # Adjust width to take half
-                    dcc.Graph(
+                    ),  
+                    # Average trip distance chart
+                    dcc.Graph( 
                         id="avg-distance-graph",
                         style={"width": "50%"},
                         config={
@@ -203,16 +207,16 @@ def create_layout():
                 ],
                 style={
                     "display": "flex",
-                    "flex-direction": "row",  # Place the graphs side by side
+                    "flex-direction": "row",  # Place the graphs side by side (orizontally)
                     "justify-content": "space-between",  # Space the graphs apart
                     "align-items": "flex-start",  # Align graphs at the top
                     "position": "relative",  # Ensure proper stacking context
                 },
             ),
         ],
-        className="main-container",
+        className="main-container", # top-level class (useful to reference in assets/main.css)
         style={
-            "width": "90%",
+            "width": "90%",  # internal container width
             "justify-content": "space-between",
             "align-items": "center",
         },
